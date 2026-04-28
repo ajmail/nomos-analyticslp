@@ -17,12 +17,33 @@ function Sidebar({ screen, setScreen, persona, setPersona, showPersonaModal, set
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
     { id: "ledger", label: "Ledger", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
-    { id: "profile", label: "Org Profile", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
+    { id: "profile", label: "Profile", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
     { id: "scenarios", label: "Scenarios", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
-    { id: "intelligence", label: "Intelligence", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" },
+    { id: "intelligence", label: "Intel", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" },
   ];
 
   const currentPersona = window.NOMOS.personas.find(p => p.id === persona) || window.NOMOS.personas[0];
+  const isMobile = window.innerWidth <= 768;
+  const [, forceUpdate] = React.useState(0);
+  React.useEffect(() => {
+    const onResize = () => forceUpdate(n => n + 1);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  if (window.innerWidth <= 768) {
+    return (
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, background: "var(--bg-1)", borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-around", padding: "6px 0 env(safe-area-inset-bottom, 6px)" }}>
+        {navItems.map(item => (
+          <button key={item.id} onClick={() => setScreen(item.id)}
+            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, background: "none", border: "none", cursor: "pointer", padding: "6px 8px", minWidth: 0 }}>
+            <Icon path={item.icon} size={18} color={screen === item.id ? "var(--red)" : "#555"} />
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.05em", color: screen === item.id ? "var(--red)" : "#555" }}>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div style={sidebarStyles.wrap}>
