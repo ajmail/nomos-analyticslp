@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nomos Analytics — Intelligence Infrastructure for the Grant Economy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+<!-- React loaded once in head -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --bg-1: #111111;
+    --bg-2: #181818;
+    --bg-3: #222222;
+    --line: #2a2a2a;
+    --line-light: #333;
+    --cream: #f5f2eb;
+    --cream-dim: rgba(245,242,235,0.55);
+    --cream-faint: rgba(245,242,235,0.18);
+    --red: #e8341a;
+    --orange: #f97316;
+    --mono: "DM Mono", "Courier New", monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    height: 56px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cream);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--red); }
+
+  .nav-links {
+    display: flex; gap: 32px; align-items: center;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cream); }
+
+  .nav-cta {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red) !important;
+    border: 1px solid var(--red);
+    padding: 6px 14px;
+    transition: background 0.2s, color 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--red); color: var(--bg) !important; }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--line);
+    padding-top: 56px;
+  }
+
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 80px 60px 80px 60px;
+    border-right: 1px solid var(--line);
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 28px;
+  }
+
+  .hero-h1 {
+    font-family: var(--sans);
+    font-size: clamp(38px, 4.5vw, 64px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    margin-bottom: 32px;
+  }
+  .hero-h1 em { font-style: normal; color: var(--red); }
+
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--cream-dim);
+    max-width: 440px;
+    margin-bottom: 48px;
+  }
+
+  .hero-actions { display: flex; gap: 16px; align-items: center; }
+
+  .btn-primary {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--red);
+    color: var(--bg);
+    padding: 14px 28px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-ghost {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    text-decoration: none;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line-light);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--cream); border-color: var(--cream-dim); }
+
+  /* ─── HERO RIGHT: animated terminal ─── */
+  .hero-right {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 80px 60px;
+    background: var(--bg-1);
+    position: relative; overflow: hidden;
+  }
+
+  .terminal-window {
+    background: var(--bg);
+    border: 1px solid var(--line-light);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .terminal-titlebar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-dot-r { background: #ff5f57; }
+  .t-dot-y { background: #febc2e; }
+  .t-dot-g { background: #28c840; }
+  .t-title {
+    margin-left: 8px;
+    font-size: 11px;
+    color: var(--cream-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .terminal-body { padding: 20px 18px; line-height: 1.8; }
+
+  .t-prompt { color: var(--red); }
+  .t-cmd { color: var(--cream); }
+  .t-out { color: var(--cream-dim); }
+  .t-key { color: var(--orange); }
+  .t-val { color: var(--cream); }
+  .t-high { color: var(--red); font-weight: 500; }
+  .t-dim { color: #555; }
+  .t-sep { color: var(--line-light); }
+  .t-cursor {
+    display: inline-block; width: 8px; height: 14px;
+    background: var(--red); vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ─── STATS BAND ─── */
+  .stats-band {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--line);
+  }
+  .stat-cell {
+    padding: 48px 40px;
+    border-right: 1px solid var(--line);
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-num {
+    font-family: var(--sans);
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .stat-num .accent { color: var(--red); }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    margin-bottom: 10px;
+  }
+  .stat-desc {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* ─── SECTION GENERIC ─── */
+  .section { border-bottom: 1px solid var(--line); }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-num {
+    padding: 48px 40px;
+    border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; justify-content: flex-start;
+  }
+  .section-num-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 8px;
+  }
+  .section-num-title {
+    font-family: var(--sans);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    line-height: 1.15;
+  }
+  .section-intro {
+    padding: 48px 60px;
+    display: flex; align-items: center;
+  }
+  .section-intro p {
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--cream-dim);
+    max-width: 600px;
+  }
+  .section-intro p strong { color: var(--cream); font-weight: 600; }
+
+  /* ─── PROBLEM SECTION ─── */
+  .problem-quote {
+    padding: 80px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0;
+  }
+  .problem-q-text {
+    padding-right: 60px;
+  }
+  .problem-q-text blockquote {
+    font-size: clamp(22px, 2.8vw, 36px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    margin-bottom: 24px;
+  }
+  .problem-q-text blockquote em { font-style: normal; color: var(--red); }
+  .problem-q-text p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--cream-dim);
+  }
+  .problem-divider { background: var(--line); }
+  .problem-list {
+    padding-left: 60px;
+    display: flex; flex-direction: column; gap: 24px; justify-content: center;
+  }
+  .problem-item {}
+  .problem-item-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+  .problem-item-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--cream-dim);
+  }
+  .problem-item-text strong { color: var(--cream); }
+
+  /* ─── PRODUCT PILLARS ─── */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+  }
+  .pillar {
+    padding: 56px 40px;
+    border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .pillar:last-child { border-right: none; }
+  .pillar-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--red);
+    margin-bottom: 20px;
+  }
+  .pillar-title {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .pillar-subtitle {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    margin-bottom: 20px;
+  }
+  .pillar-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #666;
+  }
+  .pillar-desc strong { color: var(--cream-dim); }
+
+  /* ─── DASHBOARD MOCKUP ─── */
+  .dashboard-section {
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--line);
+    padding: 60px;
+  }
+  .dashboard-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 32px;
+  }
+  .dashboard-shell {
+    border: 1px solid var(--line-light);
+    background: var(--bg);
+  }
+  .dashboard-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+  .db-tabs { display: flex; gap: 0; }
+  .db-tab {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    padding: 6px 16px;
+    border-right: 1px solid var(--line);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .db-tab:first-child { border-left: 1px solid var(--line); }
+  .db-tab.active { color: var(--red); background: rgba(232,52,26,0.08); }
+  .db-search {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-light);
+    color: var(--cream-dim);
+    padding: 6px 12px;
+    width: 280px;
+    outline: none;
+  }
+  .db-search::placeholder { color: #444; }
+
+  .dashboard-body { display: grid; grid-template-columns: 1fr 340px; }
+
+  /* Main table area */
+  .db-main { border-right: 1px solid var(--line); }
+  .db-table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+  .db-th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #555;
+  }
+  .db-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .db-row:hover { background: var(--bg-2); }
+  .db-row.selected { background: rgba(232,52,26,0.07); border-left: 2px solid var(--red); }
+  .db-cell { font-family: var(--mono); font-size: 12px; color: var(--cream-dim); }
+  .db-cell.name { color: var(--cream); font-size: 12px; }
+  .db-cell.dcr-high { color: var(--red); font-weight: 500; }
+  .db-cell.dcr-mid { color: var(--orange); }
+  .db-cell.dcr-ok { color: #4a9; }
+  .db-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid;
+  }
+  .db-badge.flag { color: var(--red); border-color: var(--red); background: rgba(232,52,26,0.1); }
+  .db-badge.ok { color: #4a9; border-color: #4a9; background: rgba(68,170,136,0.08); }
+  .db-badge.review { color: var(--orange); border-color: var(--orange); background: rgba(249,115,22,0.08); }
+
+  /* Sidebar */
+  .db-sidebar { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+  .db-sidebar-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 12px;
+  }
+  .db-metric { margin-bottom: 14px; }
+  .db-metric-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 4px;
+  }
+  .db-metric-val {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--cream);
+  }
+  .db-metric-val.red { color: var(--red); }
+  .db-metric-sub {
+    font-size: 11px;
+    color: #555;
+    margin-top: 2px;
+  }
+  .db-bar-wrap {
+    height: 4px;
+    background: var(--line-light);
+    margin-top: 8px;
+  }
+  .db-bar {
+    height: 100%;
+    background: var(--red);
+    transition: width 0.6s ease;
+  }
+  .db-bar.orange { background: var(--orange); }
+  .db-bar.green { background: #4a9; }
+
+  .db-scenario-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .db-scenario-row:last-child { border-bottom: none; }
+  .db-scenario-label { color: var(--cream-dim); }
+  .db-scenario-val { color: var(--red); font-weight: 500; }
+  .db-scenario-val.orange { color: var(--orange); }
+  .db-scenario-val.dim { color: #555; }
+
+  /* ─── AUDIENCES ─── */
+  .audiences-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid var(--line);
+  }
+  .audience-card {
+    padding: 40px 32px;
+    border-right: 1px solid var(--line);
+    transition: background 0.2s;
+    cursor: default;
+  }
+  .audience-card:last-child { border-right: none; }
+  .audience-card:hover { background: var(--bg-1); }
+  .audience-icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--line-light);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+  }
+  .audience-icon svg { width: 16px; height: 16px; stroke: var(--red); fill: none; stroke-width: 1.5; }
+  .audience-title {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .audience-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 14px;
+  }
+  .audience-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #666;
+  }
+
+  /* ─── TRACTION ─── */
+  .traction-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--line);
+  }
+  .traction-item {
+    padding: 48px 48px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .traction-item:nth-child(2n) { border-right: none; }
+  .traction-item-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 16px;
+  }
+  .traction-item-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .traction-item-desc {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #666;
+  }
+  .traction-item-desc strong { color: var(--cream-dim); }
+
+  /* ─── BLOOMBERG QUOTE ─── */
+  .bloomberg-band {
+    padding: 80px 60px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+  }
+  .bb-left { padding-right: 60px; display: flex; flex-direction: column; justify-content: center; }
+  .bb-quote {
+    font-size: clamp(20px, 2.5vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--cream);
+    margin-bottom: 20px;
+  }
+  .bb-quote em { font-style: italic; color: var(--cream-dim); }
+  .bb-attribution {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+  .bb-divider { background: var(--line); }
+  .bb-right { padding-left: 60px; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+  .bb-stat { }
+  .bb-stat-val {
+    font-family: var(--sans);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .bb-stat-val span { color: var(--red); }
+  .bb-stat-label {
+    font-size: 13px;
+    color: #666;
+  }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    padding: 100px 60px;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .cta-left { max-width: 560px; width: 100%; display: flex; flex-direction: column; }
+  .cta-h2 {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--cream);
+    margin-bottom: 24px;
+  }
+  .cta-h2 em { font-style: normal; color: var(--red); }
+  .cta-p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--cream-dim);
+    margin-bottom: 40px;
+    max-width: 440px;
+  }
+  .cta-form { display: flex; flex-direction: column; gap: 12px; max-width: 420px; }
+  .cta-input {
+    background: var(--bg-1);
+    border: 1px solid var(--line-light);
+    color: var(--cream);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 14px 16px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .cta-input:focus { border-color: var(--cream-dim); }
+  .cta-input::placeholder { color: #444; }
+  .cta-btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--red);
+    color: var(--bg);
+    border: none;
+    padding: 15px 28px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.2s;
+    align-self: flex-start;
+  }
+  .cta-btn:hover { opacity: 0.85; }
+
+  .cta-divider { background: var(--line); }
+  .cta-right { padding-left: 80px; display: flex; flex-direction: column; justify-content: center; gap: 32px; }
+  .cta-contact-block {}
+  .cta-contact-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 8px;
+  }
+  .cta-contact-val {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--cream);
+    text-decoration: none;
+  }
+  .cta-contact-val:hover { color: var(--red); }
+  .cta-ask-box {
+    border: 1px solid var(--line-light);
+    padding: 24px;
+    background: var(--bg-1);
+  }
+  .cta-ask-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 14px;
+  }
+  .cta-ask-num {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .cta-ask-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 20px;
+  }
+  .cta-use-list { display: flex; flex-direction: column; gap: 8px; }
+  .cta-use-row {
+    display: flex; justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--cream-dim);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .cta-use-row:last-child { border-bottom: none; }
+  .cta-use-pct { color: var(--red); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 60px;
+    border-top: 1px solid var(--line);
+  }
+  .footer-logo {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+  }
+  .footer-logo span { color: var(--red); }
+  .footer-links {
+    display: flex; gap: 32px; list-style: none;
+  }
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #444;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--cream-dim); }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #444;
+  }
+
+  /* ─── TICKER ─── */
+  .ticker-wrap {
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+    padding: 12px 0;
+  }
+  .ticker-track {
+    display: flex; gap: 0;
+    animation: ticker 28s linear infinite;
+    width: max-content;
+  }
+  .ticker-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 40px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--cream-dim);
+    border-right: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .ticker-item .t-name { color: var(--cream); }
+  .ticker-item .t-red { color: var(--red); }
+  .ticker-item .t-green { color: #4a9; }
+  .ticker-item .t-sep-dot { color: var(--line-light); }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* ─── SCROLL FADE IN ─── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 900px) {
+    #hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero-left { padding: 60px 24px; }
+    .stats-band { grid-template-columns: 1fr; }
+    .stat-cell { border-right: none; border-bottom: 1px solid var(--line); }
+    .section-header { grid-template-columns: 1fr; }
+    .section-num { border-right: none; border-bottom: 1px solid var(--line); }
+    .problem-quote { grid-template-columns: 1fr; padding: 40px 24px; }
+    .problem-divider { display: none; }
+    .problem-list { padding-left: 0; margin-top: 32px; }
+    .pillars-grid { grid-template-columns: 1fr; }
+    .pillar { border-right: none; border-bottom: 1px solid var(--line); }
+    .audiences-grid { grid-template-columns: repeat(2, 1fr); }
+    .traction-grid { grid-template-columns: 1fr; }
+    .traction-item { border-right: none; }
+    .bloomberg-band, .cta-section { grid-template-columns: 1fr; padding: 40px 24px; }
+    .bb-left, .bb-right, .cta-left, .cta-right { padding: 0; margin-bottom: 40px; }
+    .bb-divider, .cta-divider { display: none; }
+    .dashboard-section { padding: 40px 20px; overflow-x: auto; }
+    footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+    .footer-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Nomos<span>.</span>Analytics</a>
+  <ul class="nav-links">
+    <li><a href="#product">Product</a></li>
+    <li><a href="#audiences">Who It's For</a></li>
+    <li><a href="#traction">Traction</a></li>
+    <li><a href="demo/" class="nav-cta" style="margin-right:8px;">Live Demo</a></li>
+    <li><a href="#cta" class="nav-cta">Request Access</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-label">Intelligence Infrastructure — Grant Economy</div>
+    <h1 class="hero-h1">Public money.<br/>Made <em>legible.</em><br/>Made <em>decidable.</em></h1>
+    <p class="hero-sub">Government allocates $500 billion in grants each year with no system to track outcomes or model alternatives. Nomos is the Bloomberg Terminal for the grant economy.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">Request Early Access</a>
+      <a href="#product" class="btn-ghost">See how it works →</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="terminal-window">
+      <div class="terminal-titlebar">
+        <div class="t-dot t-dot-r"></div>
+        <div class="t-dot t-dot-y"></div>
+        <div class="t-dot t-dot-g"></div>
+        <span class="t-title">nomos — forensic shell v1.0</span>
+      </div>
+      <div class="terminal-body" id="terminal-output">
+        <div><span class="t-prompt">nomos&gt;</span> <span class="t-cmd">query --org "Innovation Works" --state PA --fy 2023-2025</span></div>
+        <div class="t-dim">——————————————————————————————————————————</div>
+        <div><span class="t-out">Loading Federal Audit Clearinghouse...</span></div>
+        <div><span class="t-out">Resolving entity: </span><span class="t-key">Innovation Works, Inc.</span></div>
+        <div><span class="t-out">Matching subsidiaries: </span><span class="t-val">AlphaLab Gear, IW Capital</span></div>
+        <div class="t-dim">——————————————————————————————————————————</div>
+        <div><span class="t-key">ORGANIZATION PROFILE</span></div>
+        <div><span class="t-out">State:              </span><span class="t-val">Pennsylvania</span></div>
+        <div><span class="t-out">Type:               </span><span class="t-val">Innovation Intermediary</span></div>
+        <div><span class="t-out">Total receipts FY25:</span><span class="t-val"> $14.2M</span></div>
+        <div><span class="t-out">Board-designated res:</span><span class="t-high"> $29M ⚑ FLAGGED</span></div>
+        <div class="t-dim">——————————————————————————————————————————</div>
+        <div><span class="t-key">DCR ANALYSIS</span></div>
+        <div><span class="t-out">Personnel / Disbursements: </span><span class="t-high">1.47:1 ⚑ ANOMALY</span></div>
+        <div><span class="t-out">Direct-to-founder rate:    </span><span class="t-high">23% ⚑ BELOW THRESHOLD</span></div>
+        <div><span class="t-out">Recycled capital claims:   </span><span class="t-high">UNVERIFIABLE</span></div>
+        <div><span class="t-out">Subsidiary audit scope:    </span><span class="t-high">NON-GAGAS</span></div>
+        <div class="t-dim">——————————————————————————————————————————</div>
+        <div><span class="t-key">RECOMMENDED ACTION</span></div>
+        <div><span class="t-out">Risk level: </span><span class="t-high">HIGH</span><span class="t-out"> — Escalate to oversight committee</span></div>
+        <div><span class="t-prompt">nomos&gt;</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker">
+    <div class="ticker-item"><span class="t-name">PA BFTP</span><span class="t-sep-dot">·</span><span class="t-red">DCR 1.47 ⚑</span><span class="t-sep-dot">·</span>$14.2M reviewed</div>
+    <div class="ticker-item"><span class="t-name">OH TechGrowth</span><span class="t-sep-dot">·</span><span class="t-green">DCR 0.82</span><span class="t-sep-dot">·</span>$8.1M reviewed</div>
+    <div class="ticker-item"><span class="t-name">MI InnovationFund</span><span class="t-sep-dot">·</span><span class="t-red">DCR 1.31 ⚑</span><span class="t-sep-dot">·</span>$22.7M reviewed</div>
+    <div class="ticker-item"><span class="t-name">IN NextLevel</span><span class="t-sep-dot">·</span><span class="t-green">DCR 0.74</span><span class="t-sep-dot">·</span>$11.3M reviewed</div>
+    <div class="ticker-item"><span class="t-name">PA DCED</span><span class="t-sep-dot">·</span><span class="t-red">$100M proposed ⚑</span><span class="t-sep-dot">·</span>3 scenarios modeled</div>
+    <div class="ticker-item"><span class="t-name">Federal OIG Alert</span><span class="t-sep-dot">·</span><span class="t-red">Unverifiable recycled capital claims</span></div>
+    <div class="ticker-item"><span class="t-name">50-state coverage</span><span class="t-sep-dot">·</span><span class="t-green">10,000+ intermediaries indexed</span></div>
+    <div class="ticker-item"><span class="t-name">PA BFTP</span><span class="t-sep-dot">·</span><span class="t-red">DCR 1.47 ⚑</span><span class="t-sep-dot">·</span>$14.2M reviewed</div>
+    <div class="ticker-item"><span class="t-name">OH TechGrowth</span><span class="t-sep-dot">·</span><span class="t-green">DCR 0.82</span><span class="t-sep-dot">·</span>$8.1M reviewed</div>
+    <div class="ticker-item"><span class="t-name">MI InnovationFund</span><span class="t-sep-dot">·</span><span class="t-red">DCR 1.31 ⚑</span><span class="t-sep-dot">·</span>$22.7M reviewed</div>
+    <div class="ticker-item"><span class="t-name">IN NextLevel</span><span class="t-sep-dot">·</span><span class="t-green">DCR 0.74</span><span class="t-sep-dot">·</span>$11.3M reviewed</div>
+    <div class="ticker-item"><span class="t-name">PA DCED</span><span class="t-sep-dot">·</span><span class="t-red">$100M proposed ⚑</span><span class="t-sep-dot">·</span>3 scenarios modeled</div>
+    <div class="ticker-item"><span class="t-name">Federal OIG Alert</span><span class="t-sep-dot">·</span><span class="t-red">Unverifiable recycled capital claims</span></div>
+    <div class="ticker-item"><span class="t-name">50-state coverage</span><span class="t-sep-dot">·</span><span class="t-green">10,000+ intermediaries indexed</span></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stat-cell fade-in">
+    <div class="stat-label">Annual grant flow</div>
+    <div class="stat-num"><span class="accent">$500B</span>+</div>
+    <div class="stat-desc">Federal, state, and local programs funding economic development — with no unified tracking system.</div>
+  </div>
+  <div class="stat-cell fade-in">
+    <div class="stat-label">Intermediary organizations</div>
+    <div class="stat-num">10,000<span class="accent">+</span></div>
+    <div class="stat-desc">CDFIs, EDAs, tech councils, workforce boards, innovation funds — between government and founders.</div>
+  </div>
+  <div class="stat-cell fade-in">
+    <div class="stat-label">Infrastructure for decisions</div>
+    <div class="stat-num"><span class="accent">0</span></div>
+    <div class="stat-desc">No system tracks outcomes or models alternatives before appropriations. Until now.</div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="section" id="problem">
+  <div class="section-header">
+    <div class="section-num">
+      <div class="section-num-label">01 — The Problem</div>
+      <div class="section-num-title">A $500B blind spot</div>
+    </div>
+    <div class="section-intro">
+      <p>Legislators vote on billion-dollar appropriations with <strong>no way to ask: what happened to the last allocation?</strong> The data exists. Nobody built the connective tissue.</p>
+    </div>
+  </div>
+  <div class="problem-quote">
+    <div class="problem-q-text fade-in">
+      <blockquote>"Government makes billion-dollar decisions with <em>less data than you'd use to buy a car.</em>"</blockquote>
+      <p>The Federal Audit Clearinghouse holds years of financial statements. Grant databases exist. What's missing is an intelligence layer that synthesizes it into decisions — and holds intermediaries accountable for where the money goes.</p>
+    </div>
+    <div class="problem-divider"></div>
+    <div class="problem-list fade-in">
+      <div class="problem-item">
+        <div class="problem-item-tag">Accountability gap</div>
+        <div class="problem-item-text">Personnel costs at major intermediaries <strong>exceed founder disbursements</strong> — and no one's tracking it systematically.</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-item-tag">Verification failure</div>
+        <div class="problem-item-text">Claims of "recycled capital" and impact go <strong>unverified in audits</strong>, inflating outcomes with no mechanism for challenge.</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-item-tag">Decision vacuum</div>
+        <div class="problem-item-text">Legislators have <strong>no scenario modeling</strong> before voting on nine-figure appropriations. They vote blind.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT PILLARS -->
+<section class="section" id="product">
+  <div class="section-header">
+    <div class="section-num">
+      <div class="section-num-label">02 — The Platform</div>
+      <div class="section-num-title">Four layers.<br/>One system.</div>
+    </div>
+    <div class="section-intro">
+      <p>Nomos is <strong>intelligence infrastructure</strong> — not another database. A full-stack platform from raw audit data to policy decisions, with AI-powered analysis and human-in-the-loop governance.</p>
+    </div>
+  </div>
+  <div class="pillars-grid">
+    <div class="pillar fade-in">
+      <div class="pillar-num">01</div>
+      <div class="pillar-title">The Ledger</div>
+      <div class="pillar-subtitle">National Database</div>
+      <div class="pillar-desc">Every state. Every sector. The <strong>DCR for each intermediary</strong> — who's absorbing overhead, who's delivering capital. Public money made legible at national scale.</div>
+    </div>
+    <div class="pillar fade-in">
+      <div class="pillar-num">02</div>
+      <div class="pillar-title">The Intelligence</div>
+      <div class="pillar-subtitle">Decision Layer</div>
+      <div class="pillar-desc">What if we restructured this program? <strong>Scenario modeling, tradeoff analysis, comparative benchmarking</strong> across states. AI generates options. Humans own the decision.</div>
+    </div>
+    <div class="pillar fade-in">
+      <div class="pillar-num">03</div>
+      <div class="pillar-title">The Accountability</div>
+      <div class="pillar-subtitle">Civic Infrastructure</div>
+      <div class="pillar-desc">Your rep voted on a $100M appropriation — <strong>here's what happened to it.</strong> Public-facing transparency that creates democratic pressure for better outcomes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD MOCKUP -->
+<div class="dashboard-section fade-in">
+  <div class="dashboard-label">Product Preview — Nomos Intelligence Dashboard</div>
+  <div class="dashboard-shell">
+    <div class="dashboard-topbar">
+      <div class="db-tabs">
+        <div class="db-tab active" onclick="switchTab(this,'ledger')">Ledger</div>
+        <div class="db-tab" onclick="switchTab(this,'scenarios')">Scenarios</div>
+        <div class="db-tab" onclick="switchTab(this,'alerts')">Alerts</div>
+      </div>
+      <input class="db-search" placeholder="Search organizations, states, programs..." id="db-search-input" />
+    </div>
+    <div class="dashboard-body" id="db-body-ledger">
+      <div class="db-main">
+        <div class="db-table-header">
+          <div class="db-th">Organization</div>
+          <div class="db-th">State</div>
+          <div class="db-th">Total Grants</div>
+          <div class="db-th">DCR</div>
+          <div class="db-th">Status</div>
+        </div>
+        <div class="db-row selected" onclick="selectRow(this, 0)">
+          <div class="db-cell name">Innovation Works, Inc.</div>
+          <div class="db-cell">PA</div>
+          <div class="db-cell">$14.2M</div>
+          <div class="db-cell dcr-high">1.47 ⚑</div>
+          <div class="db-cell"><span class="db-badge flag">Flagged</span></div>
+        </div>
+        <div class="db-row" onclick="selectRow(this, 1)">
+          <div class="db-cell name">Ohio Third Frontier</div>
+          <div class="db-cell">OH</div>
+          <div class="db-cell">$8.1M</div>
+          <div class="db-cell dcr-ok">0.82</div>
+          <div class="db-cell"><span class="db-badge ok">Compliant</span></div>
+        </div>
+        <div class="db-row" onclick="selectRow(this, 2)">
+          <div class="db-cell name">MI Economic Dev. Corp.</div>
+          <div class="db-cell">MI</div>
+          <div class="db-cell">$22.7M</div>
+          <div class="db-cell dcr-high">1.31 ⚑</div>
+          <div class="db-cell"><span class="db-badge flag">Flagged</span></div>
+        </div>
+        <div class="db-row" onclick="selectRow(this, 3)">
+          <div class="db-cell name">IN Next Level Fund</div>
+          <div class="db-cell">IN</div>
+          <div class="db-cell">$11.3M</div>
+          <div class="db-cell dcr-ok">0.74</div>
+          <div class="db-cell"><span class="db-badge ok">Compliant</span></div>
+        </div>
+        <div class="db-row" onclick="selectRow(this, 4)">
+          <div class="db-cell name">Pittsburgh Life Sciences</div>
+          <div class="db-cell">PA</div>
+          <div class="db-cell">$6.8M</div>
+          <div class="db-cell dcr-mid">1.12</div>
+          <div class="db-cell"><span class="db-badge review">Review</span></div>
+        </div>
+        <div class="db-row" onclick="selectRow(this, 5)">
+          <div class="db-cell name">NY Empire State Dev.</div>
+          <div class="db-cell">NY</div>
+          <div class="db-cell">$31.4M</div>
+          <div class="db-cell dcr-ok">0.91</div>
+          <div class="db-cell"><span class="db-badge ok">Compliant</span></div>
+        </div>
+      </div>
+      <div class="db-sidebar" id="db-sidebar-content">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BLOOMBERG BAND -->
+<div class="bloomberg-band fade-in">
+  <div class="bb-left">
+    <div class="bb-quote">
+      "Bloomberg built the terminal for financial markets.<br/>
+      <em>We're building it for the grant economy.</em>"
+    </div>
+    <div class="bb-attribution">Nomos Analytics — April 2026</div>
+  </div>
+  <div class="bb-divider"></div>
+  <div class="bb-right">
+    <div class="bb-stat">
+      <div class="bb-stat-val"><span>$90B</span>/yr</div>
+      <div class="bb-stat-label">Foundation grants — due diligence market</div>
+    </div>
+    <div class="bb-stat">
+      <div class="bb-stat-val">50 <span>states</span></div>
+      <div class="bb-stat-label">Targeted for full coverage in 6 months</div>
+    </div>
+    <div class="bb-stat">
+      <div class="bb-stat-val"><span>20+</span></div>
+      <div class="bb-stat-label">Federal agencies — OIG, GAO, program officers</div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIENCES -->
+<section class="section" id="audiences">
+  <div class="section-header">
+    <div class="section-num">
+      <div class="section-num-label">03 — Who It's For</div>
+      <div class="section-num-title">Five buyer<br/>segments.</div>
+    </div>
+    <div class="section-intro">
+      <p>Nomos serves everyone with a stake in where public money goes — from the legislator who appropriates it to the founder who never received it.</p>
+    </div>
+  </div>
+  <div class="audiences-grid">
+    <div class="audience-card fade-in">
+      <div class="audience-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="audience-sub">50 states</div>
+      <div class="audience-title">State Legislators</div>
+      <div class="audience-desc">Oversight &amp; appropriations committees voting on nine-figure programs with zero outcome data. Nomos changes what questions can be asked.</div>
+    </div>
+    <div class="audience-card fade-in">
+      <div class="audience-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+      </div>
+      <div class="audience-sub">20+ agencies</div>
+      <div class="audience-title">Federal Agencies</div>
+      <div class="audience-desc">OIG, GAO, and program officers need anomaly detection at scale. Nomos surfaces what manual review cannot.</div>
+    </div>
+    <div class="audience-card fade-in">
+      <div class="audience-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="audience-sub">$90B/yr</div>
+      <div class="audience-title">Foundations</div>
+      <div class="audience-desc">Due diligence on grantee intermediaries — are they actually delivering capital to the communities they claim to serve?</div>
+    </div>
+    <div class="audience-card fade-in">
+      <div class="audience-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div class="audience-sub">National</div>
+      <div class="audience-title">Journalists</div>
+      <div class="audience-desc">Investigative &amp; accountability reporters need data infrastructure. Nomos surfaces the stories the audit PDFs are hiding.</div>
+    </div>
+    <div class="audience-card fade-in">
+      <div class="audience-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="audience-sub">100K+/yr</div>
+      <div class="audience-title">Founders</div>
+      <div class="audience-desc">Navigate the grant ecosystem intelligently. Know before you apply which intermediaries actually disburse capital to founders.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACTION -->
+<section class="section" id="traction">
+  <div class="section-header">
+    <div class="section-num">
+      <div class="section-num-label">04 — Traction</div>
+      <div class="section-num-title">Built on<br/>real evidence.</div>
+    </div>
+    <div class="section-intro">
+      <p>Live forensic analysis. Legislative engagement. Academic documentation. A founder-led policy movement. <strong>The proof of concept is running</strong> — now we're building the platform.</p>
+    </div>
+  </div>
+  <div class="traction-grid">
+    <div class="traction-item fade-in">
+      <div class="traction-item-tag">Forensic Analysis</div>
+      <div class="traction-item-title">25¢-on-the-dollar finding — live and public</div>
+      <div class="traction-item-desc">The PA BFTP analysis identified that <strong>Innovation Works delivered under 25 cents per public dollar to founders</strong>. Cited in active policy discussions. Dashboard and profile generator functional at followthedollar.org.</div>
+    </div>
+    <div class="traction-item fade-in">
+      <div class="traction-item-tag">Legislative Engagement</div>
+      <div class="traction-item-title">Rep. Shaffer engaged for reform</div>
+      <div class="traction-item-desc">Direct engagement with Pennsylvania legislators. <strong>Work cited by state representatives</strong>. Governor's office reached. DCED Secretary allegedly recused from InnovatePGH review.</div>
+    </div>
+    <div class="traction-item fade-in">
+      <div class="traction-item-tag">Pittsburgh Compact</div>
+      <div class="traction-item-title">75% direct-to-founder standard</div>
+      <div class="traction-item-desc">Founder-led policy movement active and <strong>gaining founder signatures</strong>. The Pittsburgh Compact sets a new accountability standard for grant intermediaries. Policy in motion.</div>
+    </div>
+    <div class="traction-item fade-in">
+      <div class="traction-item-tag">Academic Documentation</div>
+      <div class="traction-item-title">SSRN pre-print live</div>
+      <div class="traction-item-desc"><strong>Methodology formally documented</strong> and published on SSRN. The forensic framework for DCR analysis is peer-validated and replicable across all 50 states.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" id="cta">
+  <div class="cta-section">
+    <div class="cta-left">
+      <h2 class="cta-h2">The infrastructure<br/>doesn't exist yet.<br/><em>Help us build it.</em></h2>
+      <p class="cta-p">We're building the first enterprise partnerships and onboarding pilot users. If you're a legislator, oversight body, foundation, or journalist — we want to hear from you.</p>
+      <form class="cta-form" onsubmit="handleSubmit(event)">
+        <input class="cta-input" type="text" placeholder="Name" id="form-name" />
+        <input class="cta-input" type="email" placeholder="Email" id="form-email" />
+        <select class="cta-input" id="form-type" style="cursor:pointer; appearance:none; background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\"); background-repeat:no-repeat; background-position: right 14px center;">
+          <option value="" disabled selected style="color:#444; background:#111;">I am a...</option>
+          <option value="legislator">State Legislator / Oversight Committee</option>
+          <option value="federal">Federal Agency (OIG, GAO)</option>
+          <option value="foundation">Foundation / Philanthropy</option>
+          <option value="journalist">Journalist / Researcher</option>
+          <option value="founder">Startup Founder</option>
+          <option value="investor">Investor</option>
+        </select>
+        <button class="cta-btn" type="submit" id="submit-btn">Request Early Access</button>
+        <div id="form-success" style="display:none; font-family:var(--mono); font-size:12px; color:#4a9; letter-spacing:0.1em;">✓ Request received. We'll be in touch.</div>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Nomos<span>.</span>Analytics</div>
+  <ul class="footer-links">
+    <li><a href="https://followthedollar.org" target="_blank">followthedollar.org</a></li>
+    <li><a href="#">SSRN Pre-print</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 Nomos Analytics. Intelligence infrastructure for the grant economy.</div>
+</footer>
+
+<script>
+// ─── DASHBOARD DATA ───
+const orgs = [
+  {
+    name: "Innovation Works, Inc.",
+    state: "PA",
+    grants: "$14.2M",
+    dcr: "1.47",
+    dcrClass: "dcr-high",
+    status: "flag",
+    statusLabel: "Flagged",
+    reserves: "$29M",
+    disbursed: "23%",
+    personnel: "47%",
+    risk: "HIGH",
+    metrics: { personnel: 72, disbursed: 23, overhead: 47 },
+    scenarios: [
+      { label: "Status Quo", val: "23%", cls: "" },
+      { label: "Pittsburgh Compact", val: "75%", cls: "orange" },
+      { label: "Performance-Based", val: "52%", cls: "orange" },
+    ]
+  },
+  {
+    name: "Ohio Third Frontier",
+    state: "OH",
+    grants: "$8.1M",
+    dcr: "0.82",
+    dcrClass: "dcr-ok",
+    status: "ok",
+    statusLabel: "Compliant",
+    reserves: "$2.1M",
+    disbursed: "68%",
+    personnel: "22%",
+    risk: "LOW",
+    metrics: { personnel: 22, disbursed: 68, overhead: 10 },
+    scenarios: [
+      { label: "Status Quo", val: "68%", cls: "dim" },
+      { label: "Target", val: "75%", cls: "orange" },
+    ]
+  },
+  {
+    name: "MI Economic Dev. Corp.",
+    state: "MI",
+    grants: "$22.7M",
+    dcr: "1.31",
+    dcrClass: "dcr-high",
+    status: "flag",
+    statusLabel: "Flagged",
+    reserves: "$18.4M",
+    disbursed: "31%",
+    personnel: "41%",
+    risk: "HIGH",
+    metrics: { personnel: 62, disbursed: 31, overhead: 41 },
+    scenarios: [
+      { label: "Status Quo", val: "31%", cls: "" },
+      { label: "Reform Scenario A", val: "60%", cls: "orange" },
+    ]
+  },
+  {
+    name: "IN Next Level Fund",
+    state: "IN",
+    grants: "$11.3M",
+    dcr: "0.74",
+    dcrClass: "dcr-ok",
+    status: "ok",
+    statusLabel: "Compliant",
+    reserves: "$1.8M",
+    disbursed: "74%",
+    personnel: "18%",
+    risk: "LOW",
+    metrics: { personnel: 18, disbursed: 74, overhead: 8 },
+    scenarios: [
+      { label: "Status Quo", val: "74%", cls: "dim" },
+    ]
+  },
+  {
+    name: "Pittsburgh Life Sciences",
+    state: "PA",
+    grants: "$6.8M",
+    dcr: "1.12",
+    dcrClass: "dcr-mid",
+    status: "review",
+    statusLabel: "Review",
+    reserves: "$4.2M",
+    disbursed: "44%",
+    personnel: "35%",
+    risk: "MEDIUM",
+    metrics: { personnel: 50, disbursed: 44, overhead: 35 },
+    scenarios: [
+      { label: "Status Quo", val: "44%", cls: "" },
+      { label: "Reform", val: "65%", cls: "orange" },
+    ]
+  },
+  {
+    name: "NY Empire State Dev.",
+    state: "NY",
+    grants: "$31.4M",
+    dcr: "0.91",
+    dcrClass: "dcr-ok",
+    status: "ok",
+    statusLabel: "Compliant",
+    reserves: "$5.1M",
+    disbursed: "61%",
+    personnel: "26%",
+    risk: "LOW",
+    metrics: { personnel: 26, disbursed: 61, overhead: 13 },
+    scenarios: []
+  }
+];
+
+let selectedOrg = 0;
+
+function renderSidebar(idx) {
+  const org = orgs[idx];
+  const sidebar = document.getElementById('db-sidebar-content');
+  if (!sidebar) return;
+  sidebar.innerHTML = `
+    <div>
+      <div class="db-sidebar-title">Profile — ${org.name}</div>
+      <div class="db-metric">
+        <div class="db-metric-label">DCR Score</div>
+        <div class="db-metric-val ${org.dcrClass === 'dcr-high' ? 'red' : ''}">${org.dcr}</div>
+        <div class="db-metric-sub">Overhead-to-disbursement ratio</div>
+        <div class="db-bar-wrap"><div class="db-bar ${org.dcrClass === 'dcr-ok' ? 'green' : org.dcrClass === 'dcr-mid' ? 'orange' : ''}" style="width:${Math.min(parseFloat(org.dcr)/2*100,100)}%"></div></div>
+      </div>
+      <div class="db-metric">
+        <div class="db-metric-label">Direct Disbursement Rate</div>
+        <div class="db-metric-val">${org.disbursed}</div>
+        <div class="db-metric-sub">Of grant funds reaching founders</div>
+        <div class="db-bar-wrap"><div class="db-bar green" style="width:${org.metrics.disbursed}%"></div></div>
+      </div>
+      <div class="db-metric">
+        <div class="db-metric-label">Personnel Cost Share</div>
+        <div class="db-metric-val ${org.metrics.personnel > 40 ? 'red' : ''}">${org.personnel}</div>
+        <div class="db-metric-sub">Of total expenditure</div>
+        <div class="db-bar-wrap"><div class="db-bar ${org.metrics.personnel > 40 ? '' : 'orange'}" style="width:${org.metrics.personnel}%"></div></div>
+      </div>
+      <div class="db-metric">
+        <div class="db-metric-label">Risk Level</div>
+        <div class="db-metric-val ${org.risk === 'HIGH' ? 'red' : ''}">${org.risk}</div>
+      </div>
+    </div>
+    ${org.scenarios.length ? `
+    <div>
+      <div class="db-sidebar-title">Scenario Modeling</div>
+      ${org.scenarios.map(s => `
+        <div class="db-scenario-row">
+          <span class="db-scenario-label">${s.label}</span>
+          <span class="db-scenario-val ${s.cls}">${s.val}</span>
+        </div>
+      `).join('')}
+    </div>` : ''}
+  `;
+}
+
+function selectRow(el, idx) {
+  document.querySelectorAll('.db-row').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOrg = idx;
+  renderSidebar(idx);
+}
+
+function switchTab(el, tab) {
+  document.querySelectorAll('.db-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Init sidebar
+setTimeout(() => renderSidebar(0), 100);
+
+// ─── FORM ───
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const success = document.getElementById('form-success');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.style.display = 'none';
+    success.style.display = 'block';
+  }, 800);
+}
+
+// ─── SCROLL FADE IN ───
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+<!-- TWEAKS -->
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#e8341a",
+  "bgColor": "#0a0a0a",
+  "heroTag": "Intelligence Infrastructure — Grant Economy",
+  "heroLine1": "Public money.",
+  "heroLine2": "Made legible.",
+  "heroLine3": "Made decidable.",
+  "ctaLabel": "Request Early Access",
+  "showTicker": true
+}/*EDITMODE-END*/;
+
+function TweaksApp() {
+  const { tweaks, setTweak } = useTweaks(TWEAK_DEFAULTS);
+
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--red', tweaks.accentColor);
+    document.documentElement.style.setProperty('--bg', tweaks.bgColor);
+    document.querySelector('.hero-label').textContent = tweaks.heroTag;
+    const h1 = document.querySelector('.hero-h1');
+    if (h1) {
+      h1.innerHTML = `${tweaks.heroLine1}<br/><em>${tweaks.heroLine2}</em><br/><em>${tweaks.heroLine3}</em>`;
+    }
+    document.querySelectorAll('.btn-primary').forEach(b => b.textContent = tweaks.ctaLabel);
+    const ticker = document.querySelector('.ticker-wrap');
+    if (ticker) ticker.style.display = tweaks.showTicker ? '' : 'none';
+  }, [tweaks]);
+
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Brand">
+        <TweakColor label="Accent Color" value={tweaks.accentColor} onChange={v => setTweak('accentColor', v)} />
+        <TweakColor label="Background" value={tweaks.bgColor} onChange={v => setTweak('bgColor', v)} />
+      </TweakSection>
+      <TweakSection label="Hero Copy">
+        <TweakText label="Tag Line" value={tweaks.heroTag} onChange={v => setTweak('heroTag', v)} />
+        <TweakText label="Line 1" value={tweaks.heroLine1} onChange={v => setTweak('heroLine1', v)} />
+        <TweakText label="Line 2" value={tweaks.heroLine2} onChange={v => setTweak('heroLine2', v)} />
+        <TweakText label="Line 3" value={tweaks.heroLine3} onChange={v => setTweak('heroLine3', v)} />
+      </TweakSection>
+      <TweakSection label="UI">
+        <TweakText label="CTA Button Label" value={tweaks.ctaLabel} onChange={v => setTweak('ctaLabel', v)} />
+        <TweakToggle label="Show Data Ticker" value={tweaks.showTicker} onChange={v => setTweak('showTicker', v)} />
+      </TweakSection>
+    </TweaksPanel>
+  );
+}
+
+const tweaksMountPoint = document.createElement('div');
+document.body.appendChild(tweaksMountPoint);
+ReactDOM.createRoot(tweaksMountPoint).render(<TweaksApp />);
+</script>
+
+</body>
+</html>
