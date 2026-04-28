@@ -1,6 +1,11 @@
 // Nomos Analytics — All Screens
 
 // ── UTILS ──
+function useIsMobile() {
+  const [m, setM] = React.useState(window.innerWidth <= 768);
+  React.useEffect(() => { const h = () => setM(window.innerWidth <= 768); window.addEventListener("resize", h); return () => window.removeEventListener("resize", h); }, []);
+  return m;
+}
 function fmt(n) { return "$" + (n >= 1e6 ? (n/1e6).toFixed(1) + "M" : (n/1e3).toFixed(0) + "K"); }
 function DCRBadge({ dcr, label }) {
   const cls = dcr < 0.3 ? { color: "var(--red)", bg: "rgba(232,52,26,0.12)", border: "var(--red)" }
@@ -28,6 +33,7 @@ function BarMeter({ pct, color = "var(--red)" }) {
 
 // ── DASHBOARD ──
 function Dashboard({ persona, setScreen, liveCounter }) {
+  const mobile = useIsMobile();
   const flagged = window.NOMOS.orgs.filter(o => o.status === "flagged");
   const { avgDCRLabel, statesAnalyzed, orgsAnalyzed, worstDCR, bestDCR } = window.NOMOS.keyStats;
 
@@ -52,15 +58,15 @@ function Dashboard({ persona, setScreen, liveCounter }) {
   ];
 
   return (
-    <div style={{ padding: 32, maxWidth: 1100 }}>
-      <div style={{ marginBottom: 32 }}>
+    <div style={{ padding: mobile ? 16 : 32, maxWidth: 1100, paddingBottom: mobile ? 80 : 32 }}>
+      <div style={{ marginBottom: 24 }}>
         <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.2em", color: "var(--red)", marginBottom: 8, textTransform: "uppercase" }}>{ctx.label}</div>
-        <div style={{ fontSize: 26, fontWeight: 700, color: "var(--cream)", marginBottom: 8, letterSpacing: "-0.02em" }}>Grant Economy Intelligence</div>
-        <div style={{ fontSize: 14, color: "var(--cream-dim)", maxWidth: 600 }}>{ctx.hint}</div>
+        <div style={{ fontSize: mobile ? 20 : 26, fontWeight: 700, color: "var(--cream)", marginBottom: 8, letterSpacing: "-0.02em" }}>Grant Economy Intelligence</div>
+        <div style={{ fontSize: mobile ? 13 : 14, color: "var(--cream-dim)", maxWidth: 600 }}>{ctx.hint}</div>
       </div>
 
       {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: mobile ? 10 : 16, marginBottom: 28 }}>
         {liveStats.map(stat => (
           <div key={stat.label} style={{ background: "var(--bg-1)", border: "1px solid var(--line)", padding: "24px 24px" }}>
             <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.15em", color: "#555", marginBottom: 8, textTransform: "uppercase" }}>{stat.label}</div>
@@ -71,7 +77,7 @@ function Dashboard({ persona, setScreen, liveCounter }) {
       </div>
 
       {/* Alerts + Quick Actions */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "1fr 300px", gap: 16 }}>
         <div>
           <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.2em", color: "var(--red)", marginBottom: 14, textTransform: "uppercase" }}>Active Alerts</div>
           {window.NOMOS.orgs.filter(o => o.status !== "compliant").map(org => (
@@ -112,6 +118,7 @@ function Dashboard({ persona, setScreen, liveCounter }) {
 
 // ── LEDGER ──
 function Ledger({ setScreen, setSelectedOrg }) {
+  const mobile = useIsMobile();
   const [sort, setSort] = React.useState({ key: "dcr", dir: "desc" });
   const [stateFilter, setStateFilter] = React.useState("ALL");
   const [search, setSearch] = React.useState("");
@@ -138,15 +145,15 @@ function Ledger({ setScreen, setSelectedOrg }) {
   ];
 
   return (
-    <div style={{ padding: "28px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+    <div style={{ padding: mobile ? 16 : "28px 32px", paddingBottom: mobile ? 80 : 28 }}>
+      <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", alignItems: mobile ? "flex-start" : "center", justifyContent: "space-between", marginBottom: 20, gap: mobile ? 12 : 0 }}>
         <div>
           <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.2em", color: "var(--red)", marginBottom: 6, textTransform: "uppercase" }}>Grant Ledger</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "var(--cream)" }}>{orgs.length} Organizations</div>
+          <div style={{ fontSize: mobile ? 18 : 22, fontWeight: 700, color: "var(--cream)" }}>{orgs.length} Organizations</div>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…"
-            style={{ background: "var(--bg-2)", border: "1px solid var(--line-light)", color: "var(--cream)", fontFamily: "var(--mono)", fontSize: 12, padding: "7px 12px", outline: "none", width: 180 }} />
+            style={{ background: "var(--bg-2)", border: "1px solid var(--line-light)", color: "var(--cream)", fontFamily: "var(--mono)", fontSize: 12, padding: "7px 12px", outline: "none", width: mobile ? "100%" : 180 }} />
           {["ALL","PA","OH","MI","IN"].map(st => (
             <button key={st} onClick={() => setStateFilter(st)}
               style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", padding: "6px 12px", background: stateFilter === st ? "var(--red)" : "var(--bg-2)", border: "1px solid var(--line-light)", color: stateFilter === st ? "var(--bg)" : "var(--cream-dim)", cursor: "pointer", transition: "all 0.15s" }}>
@@ -156,6 +163,25 @@ function Ledger({ setScreen, setSelectedOrg }) {
         </div>
       </div>
 
+      {mobile ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {orgs.map(org => (
+            <div key={org.id} onClick={() => { setSelectedOrg(org.id); setScreen("profile"); }}
+              style={{ background: "var(--bg-1)", border: "1px solid var(--line)", borderLeft: org.status === "flagged" ? "3px solid var(--red)" : org.status === "review" ? "3px solid var(--orange)" : "3px solid transparent", padding: "14px 16px", cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ color: "var(--cream)", fontWeight: 600, fontSize: 14 }}>{org.name}</div>
+                <RiskBadge risk={org.risk} />
+              </div>
+              <div style={{ display: "flex", gap: 16, fontFamily: "var(--mono)", fontSize: 11, color: "var(--cream-dim)" }}>
+                <span>{org.state}</span>
+                <span>{org.totalGrantsLabel}</span>
+                <DCRBadge dcr={org.dcr} label={org.dcrLabel} />
+                <span style={{ color: org.directDisbursementRate < 30 ? "var(--red)" : org.directDisbursementRate < 50 ? "var(--orange)" : "#4a9" }}>{org.directDisbursementRate}%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
       <div style={{ border: "1px solid var(--line)" }}>
         <div style={{ display: "flex", background: "var(--bg-1)", borderBottom: "1px solid var(--line)", padding: "10px 18px" }}>
           {cols.map(c => (
@@ -179,6 +205,7 @@ function Ledger({ setScreen, setSelectedOrg }) {
           </div>
         ))}
       </div>
+      )}
       <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#444", marginTop: 12, lineHeight: 1.6 }}>
         Source: Matin (2026), "The Capital Velocity Gap" — IRS Form 990 (ProPublica Nonprofit Explorer) &amp; Federal Audit Clearinghouse Single Audit data. All figures audited FY2024–2025.
       </div>
@@ -188,17 +215,18 @@ function Ledger({ setScreen, setSelectedOrg }) {
 
 // ── ORG PROFILE ──
 function OrgProfile({ orgId }) {
+  const mobile = useIsMobile();
   const org = window.NOMOS.orgs.find(o => o.id === orgId) || window.NOMOS.orgs[0];
   const [tab, setTab] = React.useState("overview");
 
   return (
-    <div style={{ padding: "28px 32px", maxWidth: 1000 }}>
+    <div style={{ padding: mobile ? 16 : "28px 32px", maxWidth: 1000, paddingBottom: mobile ? 80 : 28 }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, paddingBottom: 24, borderBottom: "1px solid var(--line)" }}>
+      <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", alignItems: mobile ? "flex-start" : "flex-start", justifyContent: "space-between", marginBottom: 24, paddingBottom: 24, borderBottom: "1px solid var(--line)", gap: mobile ? 12 : 0 }}>
         <div>
           <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.2em", color: "var(--red)", marginBottom: 6, textTransform: "uppercase" }}>{org.state} · {org.sector}</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--cream)", marginBottom: 4 }}>{org.name}</div>
-          <div style={{ fontFamily: "var(--mono)", fontSize: 12, color: "#555" }}>{org.city} · {org.type} · {org.fy}</div>
+          <div style={{ fontSize: mobile ? 18 : 24, fontWeight: 700, color: "var(--cream)", marginBottom: 4 }}>{org.name}</div>
+          <div style={{ fontFamily: "var(--mono)", fontSize: mobile ? 10 : 12, color: "#555" }}>{org.city} · {org.type} · {org.fy}</div>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <DCRBadge dcr={org.dcr} label={`DCR ${org.dcrLabel}`} />
@@ -221,7 +249,7 @@ function OrgProfile({ orgId }) {
       {tab === "overview" && (
         <div>
           <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--cream-dim)", marginBottom: 24, maxWidth: 680 }}>{org.description}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: 12, marginBottom: 28 }}>
             {[
               { label: "Total Grants", val: org.totalGrantsLabel, color: "var(--cream)" },
               { label: "Direct to Founders", val: `${org.directDisbursementRate}%`, color: org.directDisbursementRate < 40 ? "var(--red)" : "var(--orange)" },
@@ -295,15 +323,16 @@ function OrgProfile({ orgId }) {
 
 // ── SCENARIOS ──
 function Scenarios() {
+  const mobile = useIsMobile();
   const { programName, proposedBudget, proposedBudgetLabel, scenarios, context } = window.NOMOS.scenarios;
   const [selected, setSelected] = React.useState("B");
   const sel = scenarios.find(s => s.id === selected);
 
   return (
-    <div style={{ padding: "28px 32px", maxWidth: 1000 }}>
+    <div style={{ padding: mobile ? 16 : "28px 32px", maxWidth: 1000, paddingBottom: mobile ? 80 : 28 }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.2em", color: "var(--red)", marginBottom: 6, textTransform: "uppercase" }}>Scenario Modeling</div>
-        <div style={{ fontSize: 24, fontWeight: 700, color: "var(--cream)", marginBottom: 4 }}>{programName} — {proposedBudgetLabel} Proposed</div>
+        <div style={{ fontSize: mobile ? 18 : 24, fontWeight: 700, color: "var(--cream)", marginBottom: 4 }}>{programName} — {proposedBudgetLabel} Proposed</div>
         <div style={{ fontSize: 14, color: "var(--cream-dim)", marginBottom: context ? 16 : 0 }}>AI generates options. The human owns the decision.</div>
         {context && (
           <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "#555", background: "var(--bg-1)", border: "1px solid var(--line)", padding: "10px 14px", lineHeight: 1.6, maxWidth: 720 }}>
@@ -313,7 +342,7 @@ function Scenarios() {
       </div>
 
       {/* Scenario cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 14, marginBottom: 28 }}>
         {scenarios.map(s => (
           <div key={s.id} onClick={() => setSelected(s.id)}
             style={{ background: "var(--bg-1)", border: selected === s.id ? `2px solid ${s.color}` : "1px solid var(--line)", padding: "22px 22px", cursor: "pointer", transition: "all 0.2s" }}>
@@ -330,7 +359,7 @@ function Scenarios() {
       {/* Detail panel */}
       {sel && (
         <div style={{ background: "var(--bg-1)", border: "1px solid var(--line)", padding: "28px 28px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 24, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: 24, marginBottom: 24 }}>
             {[
               { label: "Direct to Founders", val: sel.directLabel, color: sel.color },
               { label: "Feasibility", val: sel.feasibility, color: "var(--cream)" },
