@@ -26,7 +26,7 @@ function Sidebar({ screen, setScreen, persona, setPersona, showPersonaModal, set
 
   return (
     <div style={sidebarStyles.wrap}>
-      <a href="/" style={{ ...sidebarStyles.logo, textDecoration: "none" }}>
+      <a href="https://nomosanalytics.com" style={{ ...sidebarStyles.logo, textDecoration: "none" }}>
         <span style={{ color: "var(--cream)", fontWeight: 700, fontSize: 13, letterSpacing: "0.15em" }}>NOMOS</span>
         <span style={{ color: "var(--red)" }}>.</span>
         <span style={{ color: "var(--cream-dim)", fontSize: 10, letterSpacing: "0.1em", marginLeft: 4 }}>ANALYTICS</span>
