@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nomos Analytics — Platform Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+<script src="nomos-data.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0a;
+    --bg-1: #111111;
+    --bg-2: #181818;
+    --bg-3: #222222;
+    --line: #1e1e1e;
+    --line-light: #2a2a2a;
+    --cream: #f5f2eb;
+    --cream-dim: rgba(245,242,235,0.6);
+    --red: #e8341a;
+    --orange: #f97316;
+    --mono: "DM Mono", "Courier New", monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  html, body { height: 100%; background: var(--bg); color: var(--cream); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+  #root { height: 100vh; display: flex; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--line-light); }
+
+  /* Animations */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes ellipsis {
+    0% { content: "."; }
+    33% { content: ".."; }
+    66% { content: "..."; }
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen-enter { animation: fadeSlide 0.25s ease both; }
+
+  /* Hover helpers */
+  button:hover { opacity: 0.85; }
+
+  /* Persona welcome overlay */
+  .welcome-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .welcome-inner {
+    max-width: 560px; width: 100%;
+    padding: 48px;
+    border: 1px solid var(--line-light);
+    background: var(--bg-1);
+  }
+  .welcome-logo {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em;
+    color: var(--red); text-transform: uppercase; margin-bottom: 32px;
+  }
+  .persona-btn {
+    display: flex; align-items: center; gap: 16px;
+    width: 100%; padding: 16px 18px; margin-bottom: 10px;
+    background: var(--bg-2); border: 1px solid var(--line);
+    cursor: pointer; text-align: left; transition: all 0.15s;
+  }
+  .persona-btn:hover { border-color: var(--red); background: rgba(232,52,26,0.06); }
+  .persona-icon {
+    width: 40px; height: 40px; border: 1px solid var(--line-light);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  /* Notification toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 400;
+    background: var(--bg-1); border: 1px solid var(--line-light);
+    border-left: 3px solid var(--red);
+    padding: 14px 18px; max-width: 320px;
+    animation: fadeSlide 0.3s ease;
+    font-family: var(--mono); font-size: 11px; color: var(--cream-dim);
+  }
+
+  /* Export notice */
+  .export-toast {
+    position: fixed; top: 60px; right: 20px; z-index: 400;
+    background: var(--bg-1); border: 1px solid var(--line-light);
+    padding: 12px 16px;
+    font-family: var(--mono); font-size: 11px; color: #4a9;
+    animation: fadeSlide 0.2s ease;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="nomos-ui.jsx"></script>
+<script type="text/babel" src="nomos-screens.jsx"></script>
+<script type="text/babel" src="demo-tweaks/tweaks-panel.jsx"></script>
+
+<script type="text/babel">
+function App() {
+  const [started, setStarted] = React.useState(false);
+  const [persona, setPersona] = React.useState("legislator");
+  const [screen, setScreen] = React.useState("dashboard");
+  const [showPersonaModal, setShowPersonaModal] = React.useState(false);
+  const [showTour, setShowTour] = React.useState(false);
+  const [tourStep, setTourStep] = React.useState(0);
+  const [showExport, setShowExport] = React.useState(false);
+  const [exportToast, setExportToast] = React.useState(false);
+  const [selectedOrg, setSelectedOrg] = React.useState("innovation-works");
+  const [liveCounter, setLiveCounter] = React.useState(10847);
+
+  // Live counter effect
+  React.useEffect(() => {
+    const t = setInterval(() => {
+      setLiveCounter(n => n + Math.floor(Math.random() * 3));
+    }, 3000);
+    return () => clearInterval(t);
+  }, []);
+
+  function handleExport() {
+    setExportToast(true);
+    setTimeout(() => setExportToast(false), 2500);
+  }
+
+  function handleTour() {
+    setShowTour(true);
+    setTourStep(0);
+  }
+
+  function handleScreenChange(s) {
+    setScreen(s);
+    if (showTour) {
+      const steps = [null, "dashboard", "ledger", "profile", "scenarios", "intelligence"];
+      const idx = steps.indexOf(s);
+      if (idx > 0) setTourStep(idx);
+    }
+  }
+
+  // Welcome screen
+  if (!started) {
+    return (
+      <div className="welcome-overlay">
+        <div className="welcome-inner">
+          <div className="welcome-logo">Nomos<span style={{color:"var(--cream)"}}>.</span>Analytics — Platform Demo</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "var(--cream)", letterSpacing: "-0.02em", marginBottom: 8 }}>
+            Who are you today?
+          </div>
+          <div style={{ fontSize: 14, color: "var(--cream-dim)", marginBottom: 28 }}>
+            The platform adapts to surface the most relevant intelligence for your role.
+          </div>
+          {window.NOMOS.personas.map(p => (
+            <button key={p.id} className="persona-btn"
+              onClick={() => { setPersona(p.id); setStarted(true); setTimeout(() => { setShowTour(true); setTourStep(0); }, 400); }}>
+              <div className="persona-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  {p.icon.split(' M').map((d, i) => <path key={i} d={i===0?d:'M'+d} />)}
+                </svg>
+              </div>
+              <div>
+                <div style={{ color: "var(--cream)", fontWeight: 700, fontSize: 14, marginBottom: 3 }}>{p.label}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#555", letterSpacing: "0.1em" }}>{p.sub}</div>
+              </div>
+              <div style={{ marginLeft: "auto", color: "#444" }}>→</div>
+            </button>
+          ))}
+          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 10, color: "#444", letterSpacing: "0.1em" }}>
+            NOMOS ANALYTICS · INVESTOR DEMO · APRIL 2026
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const screenComponents = {
+    dashboard: <Dashboard persona={persona} setScreen={handleScreenChange} liveCounter={liveCounter} />,
+    ledger: <Ledger setScreen={handleScreenChange} setSelectedOrg={setSelectedOrg} />,
+    profile: <OrgProfile orgId={selectedOrg} />,
+    scenarios: <Scenarios />,
+    intelligence: <Intelligence persona={persona} />,
+  };
+
+  return (
+    <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>
+      <Sidebar
+        screen={screen}
+        setScreen={handleScreenChange}
+        persona={persona}
+        setPersona={setPersona}
+        showPersonaModal={showPersonaModal}
+        setShowPersonaModal={setShowPersonaModal}
+      />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <TopBar
+          screen={screen}
+          onExport={handleExport}
+          onTour={handleTour}
+          liveCounter={liveCounter.toLocaleString()}
+        />
+        <div key={screen} className="screen-enter" style={{ flex: 1, overflowY: screen === "intelligence" ? "hidden" : "auto" }}>
+          {screenComponents[screen]}
+        </div>
+      </div>
+
+      {showPersonaModal && (
+        <PersonaModal persona={persona} setPersona={setPersona} onClose={() => setShowPersonaModal(false)} />
+      )}
+      {showTour && (
+        <TourOverlay step={tourStep} setStep={setTourStep} onClose={() => setShowTour(false)} />
+      )}
+      {exportToast && (
+        <div className="export-toast">✓ Report queued for download</div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#e8341a",
+  "programName": "Innovate in PA 2.0",
+  "proposedBudget": "$100M",
+  "defaultPersona": "legislator"
+}/*EDITMODE-END*/;
+
+function DemoTweaks() {
+  const result = useTweaks(TWEAK_DEFAULTS);
+  if (!result || !result.tweaks) return null;
+  const { tweaks, setTweak } = result;
+
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--red', tweaks.accentColor);
+    if (window.NOMOS && window.NOMOS.scenarios) {
+      window.NOMOS.scenarios.programName = tweaks.programName;
+      window.NOMOS.scenarios.proposedBudgetLabel = tweaks.proposedBudget;
+    }
+  }, [tweaks]);
+
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Brand">
+        <TweakColor label="Accent Color" value={tweaks.accentColor} onChange={v => setTweak('accentColor', v)} />
+      </TweakSection>
+      <TweakSection label="Scenarios">
+        <TweakText label="Program Name" value={tweaks.programName} onChange={v => setTweak('programName', v)} />
+        <TweakText label="Proposed Budget" value={tweaks.proposedBudget} onChange={v => setTweak('proposedBudget', v)} />
+      </TweakSection>
+      <TweakSection label="Demo">
+        <TweakSelect label="Default Persona" value={tweaks.defaultPersona}
+          options={[
+            { value: "legislator", label: "State Legislator" },
+            { value: "foundation", label: "Foundation Officer" },
+            { value: "federal", label: "Federal Auditor" },
+            { value: "journalist", label: "Journalist" },
+          ]}
+          onChange={v => setTweak('defaultPersona', v)} />
+      </TweakSection>
+    </TweaksPanel>
+  );
+}
+
+const tweakMount = document.createElement('div');
+document.body.appendChild(tweakMount);
+ReactDOM.createRoot(tweakMount).render(<DemoTweaks />);
+</script>
+</body>
+</html>
