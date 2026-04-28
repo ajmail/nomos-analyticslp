@@ -4,10 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Nomos Analytics — Intelligence Infrastructure for the Grant Economy</title>
-<meta property="og:title" content="Nomos Analytics" />
-<meta property="og:description" content="Intelligence infrastructure for the grant economy" />
-<meta property="og:image" content="https://nomosanalytics.com/nomos-og1.png" />
-<meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
@@ -841,25 +837,44 @@
   @media (max-width: 900px) {
     #hero { grid-template-columns: 1fr; }
     .hero-right { display: none; }
-    nav { padding: 0 20px; }
+    nav { padding: 0 16px; }
     .nav-links { display: none; }
-    .hero-left { padding: 60px 24px; }
+    .hero-left { padding: 60px 20px; }
+    .hero-h1 { font-size: 32px; }
+    .hero-sub { font-size: 15px; }
+    .hero-actions { flex-direction: column; align-items: flex-start; gap: 12px; }
     .stats-band { grid-template-columns: 1fr; }
-    .stat-cell { border-right: none; border-bottom: 1px solid var(--line); }
+    .stat-cell { border-right: none; border-bottom: 1px solid var(--line); padding: 32px 24px; }
+    .stat-num { font-size: 36px; }
     .section-header { grid-template-columns: 1fr; }
-    .section-num { border-right: none; border-bottom: 1px solid var(--line); }
-    .problem-quote { grid-template-columns: 1fr; padding: 40px 24px; }
+    .section-num { border-right: none; border-bottom: 1px solid var(--line); padding: 32px 24px; }
+    .section-intro { padding: 32px 24px; }
+    .section-intro p { font-size: 16px; }
+    .problem-quote { grid-template-columns: 1fr; padding: 32px 24px; }
+    .problem-q-text { padding-right: 0; }
+    .problem-q-text blockquote { font-size: 22px; }
     .problem-divider { display: none; }
     .problem-list { padding-left: 0; margin-top: 32px; }
     .pillars-grid { grid-template-columns: 1fr; }
-    .pillar { border-right: none; border-bottom: 1px solid var(--line); }
-    .audiences-grid { grid-template-columns: repeat(2, 1fr); }
+    .pillar { border-right: none; border-bottom: 1px solid var(--line); padding: 36px 24px; }
+    .audiences-grid { grid-template-columns: 1fr; }
+    .audience-card { border-right: none; border-bottom: 1px solid var(--line); padding: 32px 24px; }
     .traction-grid { grid-template-columns: 1fr; }
-    .traction-item { border-right: none; }
-    .bloomberg-band, .cta-section { grid-template-columns: 1fr; padding: 40px 24px; }
-    .bb-left, .bb-right, .cta-left, .cta-right { padding: 0; margin-bottom: 40px; }
-    .bb-divider, .cta-divider { display: none; }
-    .dashboard-section { padding: 40px 20px; overflow-x: auto; }
+    .traction-item { border-right: none; padding: 32px 24px; }
+    .bloomberg-band { grid-template-columns: 1fr; padding: 40px 24px; }
+    .bb-left { padding-right: 0; margin-bottom: 32px; }
+    .bb-quote { font-size: 22px; }
+    .bb-divider { display: none; }
+    .bb-right { padding-left: 0; }
+    .bb-stat-val { font-size: 28px; }
+    .cta-section { flex-direction: column; padding: 40px 24px; }
+    .cta-left { max-width: 100%; }
+    .cta-h2 { font-size: 28px; }
+    .cta-right { padding-left: 0; margin-top: 32px; }
+    .cta-divider { display: none; }
+    .cta-form { max-width: 100%; }
+    .dashboard-section { padding: 32px 16px; overflow-x: auto; }
+    .dashboard-shell { min-width: 700px; }
     footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
     .footer-links { display: none; }
   }
