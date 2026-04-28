@@ -26,11 +26,11 @@ function Sidebar({ screen, setScreen, persona, setPersona, showPersonaModal, set
 
   return (
     <div style={sidebarStyles.wrap}>
-      <div style={sidebarStyles.logo}>
+      <a href="/" style={{ ...sidebarStyles.logo, textDecoration: "none" }}>
         <span style={{ color: "var(--cream)", fontWeight: 700, fontSize: 13, letterSpacing: "0.15em" }}>NOMOS</span>
         <span style={{ color: "var(--red)" }}>.</span>
         <span style={{ color: "var(--cream-dim)", fontSize: 10, letterSpacing: "0.1em", marginLeft: 4 }}>ANALYTICS</span>
-      </div>
+      </a>
       <div style={sidebarStyles.liveDot} className="live-indicator">
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4a9", display: "inline-block", marginRight: 6, animation: "pulse 2s infinite" }}></span>
         <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#4a9", letterSpacing: "0.12em" }}>LIVE DATA</span>
